@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { FaPlay, FaArrowDown, FaFileAlt, FaCheck } from "react-icons/fa"; // Mengimpor ikon dari react-icons
+import { FaPlay, FaArrowDown, FaFileAlt, FaCheck } from "react-icons/fa";
 import FileUpload from "../components/FileUpload";
-import "./Decode.css"; // Impor file CSS
+import "./Decode.css";
 
 function Decode() {
   const [file, setFile] = useState(null);
   const [decodedText, setDecodedText] = useState("");
-  const [currentStep, setCurrentStep] = useState(0); // Untuk melacak langkah
+  const [currentStep, setCurrentStep] = useState(0);
 
   const decodeTextFromImage = async (imageFile) => {
     const canvas = document.createElement("canvas");
@@ -24,14 +24,14 @@ function Decode() {
 
         let binaryText = "";
         for (let i = 0; i < data.length; i++) {
-          binaryText += (data[i] & 1).toString(); // Extract LSB
+          binaryText += (data[i] & 1).toString();
         }
 
         const chars = binaryText.match(/.{8}/g).map((byte) => {
           return String.fromCharCode(parseInt(byte, 2));
         });
 
-        const text = chars.join("").split("\0")[0]; // Stop at null terminator
+        const text = chars.join("").split("\0")[0];
         resolve(text);
       };
 
@@ -46,23 +46,20 @@ function Decode() {
       return;
     }
 
-    setCurrentStep(1); // Mulai animasi pertama (Start)
+    setCurrentStep(1);
 
-    // Step 1: Extract LSB
     setTimeout(() => {
-      setCurrentStep(2); // Extract LSB
+      setCurrentStep(2);
     }, 1000);
 
-    // Step 2: Convert binary to text
     setTimeout(() => {
-      setCurrentStep(3); // Convert Binary to Text
+      setCurrentStep(3);
     }, 2000);
 
-    // Step 3: Display decoded text
     setTimeout(async () => {
       const decoded = await decodeTextFromImage(file);
       setDecodedText(decoded);
-      setCurrentStep(4); // Tampilkan teks yang ter-decode
+      setCurrentStep(4);
     }, 3000);
   };
 

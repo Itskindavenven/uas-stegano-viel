@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { FaPlay, FaFileCode, FaImage, FaCode } from "react-icons/fa";
 import FileUpload from "../components/FileUpload";
-import "./Encode.css";  // Impor file CSS
+import "./Encode.css";
 
 function Encode() {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const [encodedImage, setEncodedImage] = useState(null);
-  const [currentStep, setCurrentStep] = useState(0); // Untuk melacak langkah
+  const [currentStep, setCurrentStep] = useState(0);
 
   const encodeTextToImage = async (imageFile, textToEncode) => {
     const canvas = document.createElement("canvas");
@@ -26,12 +26,12 @@ function Encode() {
         const binaryText = textToEncode
           .split("")
           .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
-          .join("") + "00000000"; // Add a null terminator (8 zeros)
+          .join("") + "00000000";
 
         let textIndex = 0;
         for (let i = 0; i < data.length; i++) {
           if (textIndex < binaryText.length) {
-            data[i] = (data[i] & 0xfe) | parseInt(binaryText[textIndex], 2); // Encode bit into LSB
+            data[i] = (data[i] & 0xfe) | parseInt(binaryText[textIndex], 2);
             textIndex++;
           }
         }
@@ -51,23 +51,20 @@ function Encode() {
       return;
     }
 
-    setCurrentStep(1); // Mulai animasi pertama (Start)
+    setCurrentStep(1);
 
-    // Step 1: Convert text to binary
     setTimeout(() => {
-      setCurrentStep(2); // Convert Text to Binary
+      setCurrentStep(2);
     }, 1000);
 
-    // Step 2: Encode using LSB
     setTimeout(() => {
-      setCurrentStep(3); // Binary to LSB
+      setCurrentStep(3);
     }, 2000);
 
-    // Step 3: Final Image
     setTimeout(async () => {
       const encoded = await encodeTextToImage(file, text);
       setEncodedImage(encoded);
-      setCurrentStep(4); // Tampilkan gambar yang ter-encode
+      setCurrentStep(4);
     }, 3000);
   };
 
@@ -104,8 +101,9 @@ function Encode() {
         onChange={(e) => setText(e.target.value)}
         className="textarea"
       />
-
-      <button onClick={handleEncode}>Encode</button>
+      <div className="button-container">
+        <button onClick={handleEncode}>Encode</button>
+      </div>
 
       {encodedImage && (
         <div>
