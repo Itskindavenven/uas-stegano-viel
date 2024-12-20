@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f9;
+  }
+  
+  h1, h3 {
+    color: #333;
+  }
+  
+  .home, .page {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .card-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+  }
+  
+  .button {
+    margin: 10px;
+    padding: 10px 20px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background: #0056b3;
+  }
+  
+  .textarea {
+    width: 80%;
+    height: 100px;
+    margin: 10px 0;
+  }
+  
+  .file-upload {
+    margin: 20px;
+  }
+  
+  .progress-bar {
+    width: 80%;
+    height: 20px;
+    background: #ccc;
+    margin: 10px auto;
+    position: relative;
+  }
+  
+  .progress {
+    width: 50%;
+    height: 100%;
+    background: #007BFF;
+    animation: progress 2s infinite;
+  }
+  
+  @keyframes progress {
+    0% { width: 0; }
+    100% { width: 100%; }
+  }
+  
