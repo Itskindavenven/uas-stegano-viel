@@ -40,6 +40,43 @@ function Decode() {
     });
   };
 
+  const decodeTextFromAudio = (audioFile) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const audioData = new Uint8Array(reader.result);
+        let binaryText = "";
+
+        for (let i = 0; i < audioData.length; i++) {
+          binaryText += (audioData[i] & 1).toString();
+        }
+
+        const chars = binaryText.match(/.{8}/g).map((byte) => {
+          return String.fromCharCode(parseInt(byte, 2));
+        });
+
+        const text = chars.join("").split("\0")[0];
+        resolve(text);
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(audioFile);
+    });
+  };
+
+  const decodeTextFromVideo = (videoFile) => {
+    return new Promise((resolve, reject) => {
+      const videoElement = document.createElement("video");
+      videoElement.src = URL.createObjectURL(videoFile);
+
+      videoElement.onload = () => {
+        const binaryText = "Example decoded text from video"; // Placeholder
+        resolve(binaryText);
+      };
+
+      videoElement.onerror = reject;
+    });
+  };
+
   const handleDecode = async () => {
     if (!file) {
       alert("Please upload a file to decode!");
@@ -57,18 +94,46 @@ function Decode() {
     }, 2000);
 
     setTimeout(async () => {
-      const decoded = await decodeTextFromImage(file);
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      let decoded;
+      if (fileExtension === "jpg" || fileExtension === "png") {
+        decoded = await decodeTextFromImage(file);
+      } else if (fileExtension === "mp3") {
+        decoded = await decodeTextFromAudio(file);
+      } else if (fileExtension === "mp4") {
+        decoded = await decodeTextFromVideo(file);
+      }
+
       setDecodedText(decoded);
       setCurrentStep(4);
     }, 3000);
   };
 
   return (
-    <div className="page">
-      <h1>Decode Text from Image</h1>
-      <FileUpload onFileSelect={(file) => setFile(file)} />
+    <div className="decode-page">
+      <h1 className="page-title">Decode Text from Image, Audio, or Video</h1>
 
-      <div className="visualization">
+      <div className="main-container">
+        <div className="card upload-card">
+          <div className="upload-section">
+            <FileUpload onFileSelect={(file) => setFile(file)} />
+          </div>
+          <div className="button-container">
+            <button onClick={handleDecode}>Decode</button>
+          </div>
+        </div>
+
+        <div className="card decoded-text-card">
+          {decodedText && (
+            <div className="decoded-text">
+              <h3>Decoded Text:</h3>
+              <textarea value={decodedText} readOnly className="textarea" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="steps-container">
         <div className={`step ${currentStep >= 1 ? "active" : ""}`}>
           <FaPlay size={40} color="#4CAF50" />
           <p>Start</p>
@@ -89,15 +154,6 @@ function Decode() {
           <p>Display Decoded Text</p>
         </div>
       </div>
-
-      <button onClick={handleDecode}>Decode</button>
-
-      {decodedText && (
-        <div>
-          <h3>Decoded Text:</h3>
-          <textarea value={decodedText} readOnly className="textarea" />
-        </div>
-      )}
     </div>
   );
 }

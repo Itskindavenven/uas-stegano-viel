@@ -6,25 +6,18 @@ function Home() {
   const navigate = useNavigate();
 
   const handleAction = (type, action) => {
-    navigate(`/${action}/${type}`);
+    navigate(`/${action}/${type}`);  // Pass the action and type correctly
   };
 
   return (
     <div className="home">
-      <h1 className="title">UAS CYBERSECUIRTY</h1>
-      <div className="names">
-        <p>Michelle Gravielle Benedicta Roring</p>
-        <p>Hibban Muhammad</p>
-      </div>
+      <h1 className="title">Steganography</h1>
+      <p className="subtitle">Sembunyikan pesanmu dengan aman!</p>
+
       <div className="card-container">
-        {["image", "audio", "video"].map((type) => (
-          <Card
-            key={type}
-            title={`Steganography ${type.toUpperCase()}`}
-            onEncode={() => handleAction(type, "encode")}
-            onDecode={() => handleAction(type, "decode")}
-          />
-        ))}
+        <Card title="Text to Audio" icon="audio" onAction={handleAction} />
+        <Card title="Text to Image" icon="image" onAction={handleAction} />
+        <Card title="Text to Video" icon="video" onAction={handleAction} />
       </div>
     </div>
   );

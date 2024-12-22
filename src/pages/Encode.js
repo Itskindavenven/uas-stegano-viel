@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { FaPlay, FaFileCode, FaImage, FaCode } from "react-icons/fa";
+import { FaPlay, FaFileCode, FaImage, FaCode, FaVideo, FaMicrophone } from "react-icons/fa";
 import FileUpload from "../components/FileUpload";
 import "./Encode.css";
 
 function Encode() {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
-  const [encodedImage, setEncodedImage] = useState(null);
+  const [encodedData, setEncodedData] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
 
   const encodeTextToImage = async (imageFile, textToEncode) => {
@@ -45,6 +45,50 @@ function Encode() {
     });
   };
 
+  const encodeTextToAudio = (audioFile, textToEncode) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const audioData = new Uint8Array(reader.result);
+        let binaryText = "";
+
+        // Convert the text to binary
+        for (let i = 0; i < textToEncode.length; i++) {
+          binaryText += textToEncode.charCodeAt(i).toString(2).padStart(8, "0");
+        }
+        binaryText += "00000000"; // End of text marker
+
+        // Encode into audio data (this is a basic approach for demonstration)
+        for (let i = 0; i < audioData.length; i++) {
+          if (i < binaryText.length) {
+            audioData[i] = (audioData[i] & 0xfe) | parseInt(binaryText[i], 2);
+          }
+        }
+
+        const encodedAudioBlob = new Blob([audioData], { type: audioFile.type });
+        const encodedAudioUrl = URL.createObjectURL(encodedAudioBlob);
+        resolve(encodedAudioUrl);
+      };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(audioFile);
+    });
+  };
+
+  const encodeTextToVideo = (videoFile, textToEncode) => {
+    return new Promise((resolve, reject) => {
+      const videoElement = document.createElement("video");
+      videoElement.src = URL.createObjectURL(videoFile);
+
+      videoElement.onload = () => {
+        // Skip actual video manipulation for now
+        const modifiedVideoUrl = URL.createObjectURL(videoFile); // Just returning the original video
+        resolve(modifiedVideoUrl);
+      };
+
+      videoElement.onerror = reject;
+    });
+  };
+
   const handleEncode = async () => {
     if (!file || !text) {
       alert("Please upload a file and enter text!");
@@ -62,53 +106,102 @@ function Encode() {
     }, 2000);
 
     setTimeout(async () => {
-      const encoded = await encodeTextToImage(file, text);
-      setEncodedImage(encoded);
+      let encoded;
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      if (fileExtension === "jpg" || fileExtension === "png") {
+        encoded = await encodeTextToImage(file, text);
+      } else if (fileExtension === "mp3") {
+        encoded = await encodeTextToAudio(file, text);
+      } else if (fileExtension === "mp4") {
+        encoded = await encodeTextToVideo(file, text);
+      }
+
+      setEncodedData(encoded);
       setCurrentStep(4);
     }, 3000);
   };
 
   return (
-    <div className="page">
-      <h1>Encode Text into Image</h1>
-      <FileUpload onFileSelect={(file) => setFile(file)} />
+    <div className="page p-6">
+      <h1 className="text-3xl font-bold text-center mb-6">Encode Text into Image, Audio, or Video</h1>
 
-      <div className="visualization">
-        <div className={`step ${currentStep >= 1 ? "active" : ""}`}>
+      <div className="upload-section grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="upload-card bg-white p-6 shadow-lg rounded-md">
+          <h3 className="text-xl font-semibold mb-4">Upload File</h3>
+          <FileUpload onFileSelect={(file) => setFile(file)} />
+          
+          {file && (
+            <div className="file-preview mt-4">
+              {file.type.startsWith("image") && (
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Preview"
+                  className="w-full max-h-60 object-contain"
+                />
+              )}
+              {file.type.startsWith("audio") && (
+                <audio src={URL.createObjectURL(file)} controls className="w-full mt-4" />
+              )}
+              {file.type.startsWith("video") && (
+                <video src={URL.createObjectURL(file)} controls className="w-full mt-4" />
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="input-section bg-white p-6 shadow-lg rounded-md">
+          <h3 className="text-xl font-semibold mb-4">Enter Text to Encode</h3>
+          <textarea
+            placeholder="Enter text to encode"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="w-full p-4 border rounded-md h-32 mb-4"
+          />
+          <div className="button-container flex justify-center">
+            <button
+              onClick={handleEncode}
+              className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600"
+            >
+              Encode
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="visualization mt-6 grid grid-cols-4 gap-4">
+        <div className={`step ${currentStep >= 1 ? "active" : ""} flex flex-col items-center`}>
           <FaPlay size={50} />
           <p>Start</p>
         </div>
 
-        <div className={`step ${currentStep >= 2 ? "active" : ""}`}>
+        <div className={`step ${currentStep >= 2 ? "active" : ""} flex flex-col items-center`}>
           <FaFileCode size={50} />
           <p>Convert Text to Binary</p>
         </div>
 
-        <div className={`step ${currentStep >= 3 ? "active" : ""}`}>
+        <div className={`step ${currentStep >= 3 ? "active" : ""} flex flex-col items-center`}>
           <FaCode size={50} />
           <p>Binary to LSB</p>
         </div>
 
-        <div className={`step ${currentStep >= 4 ? "active" : ""}`}>
+        <div className={`step ${currentStep >= 4 ? "active" : ""} flex flex-col items-center`}>
           <FaImage size={50} />
-          <p>Final Image</p>
+          <p>Final Result</p>
         </div>
       </div>
 
-      <textarea
-        placeholder="Enter text to encode"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        className="textarea"
-      />
-      <div className="button-container">
-        <button onClick={handleEncode}>Encode</button>
-      </div>
-
-      {encodedImage && (
-        <div>
-          <h3>Encoded Image:</h3>
-          <img src={encodedImage} alt="Encoded" style={{ maxWidth: "100%" }} />
+      {encodedData && (
+        <div className="mt-6">
+          <h3 className="text-2xl font-semibold">Encoded Result:</h3>
+          {file && file.name.endsWith(".mp4") && (
+            <video src={encodedData} controls className="w-full mt-4" />
+          )}
+          {file && file.name.endsWith(".mp3") && (
+            <audio src={encodedData} controls className="w-full mt-4" />
+          )}
+          {file && (file.name.endsWith(".jpg") || file.name.endsWith(".png")) && (
+            <img src={encodedData} alt="Encoded" className="w-full max-h-60 object-contain mt-4" />
+          )}
         </div>
       )}
     </div>

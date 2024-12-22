@@ -1,68 +1,172 @@
 .page {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .textarea {
-    width: 80%;
-    height: 150px;
-    margin: 20px 0;
-  }
-  
-  .button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .button:hover {
-    background-color: #45a049;
-  }
-  
-  .visualization {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-  }
-  
-  .step {
-    text-align: center;
-    margin: 0 15px;
-    opacity: 0.5;
-    transition: opacity 0.5s;
-  }
-  
-  .step.active {
-    opacity: 1;
-  }
-  
-  .step img {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .step p {
-    font-size: 14px;
-    margin-top: 5px;
-  }
-  
-  img {
-    margin-top: 20px;
-    border: 2px solid #ddd;
-    border-radius: 10px;
-    max-width: 100%;
-  }
-  
-  .button-container {
-    margin-top: 10px;
-    text-align: center;
-  }
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.encode-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.file-upload-section {
+  flex: 1;
+}
+
+.text-input-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.textarea {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  resize: none;
+  font-size: 16px;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+button {
+  padding: 12px 24px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.visualization {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.5;
+}
+
+.step.active {
+  opacity: 1;
+}
+
+.step p {
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #3c9d3c;
+}
+
+img, audio, video {
+  max-width: 100%;
+  margin-top: 20px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.upload-section {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  margin-bottom: 20px;
+}
+
+.upload-card,
+.input-section {
+  width: 48%;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.upload-card h3 {
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.file-preview {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.input-section .textarea {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.button-container {
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.visualization {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+}
+
+.step {
+  text-align: center;
+}
+
+.step.active {
+  color: #007bff;
+}
+
+.step p {
+  margin-top: 10px;
+}

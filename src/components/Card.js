@@ -1,11 +1,20 @@
-import React from "react";
+import React from 'react';
+import { FaMusic, FaImage, FaVideo } from 'react-icons/fa';
+import './Card.css'; // Import the styles for Card
 
-function Card({ title, onEncode, onDecode }) {
+function Card({ title, icon, onAction }) {
   return (
     <div className="card">
-      <h3>{title}</h3>
-      <button onClick={onEncode} className="button">Encode</button>
-      <button onClick={onDecode} className="button">Decode</button>
+      <div className="icon-container">
+        {icon === 'audio' && <FaMusic size={48} />}
+        {icon === 'image' && <FaImage size={48} />}
+        {icon === 'video' && <FaVideo size={48} />}
+      </div>
+      <h3 className="card-title">{title}</h3>
+      <div className="button-container">
+        <button onClick={() => onAction(icon, 'encode')} className="button encode-btn">Encode</button>
+        <button onClick={() => onAction(icon, 'decode')} className="button decode-btn">Decode</button>
+      </div>
     </div>
   );
 }
