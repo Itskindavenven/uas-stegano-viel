@@ -69,7 +69,7 @@ function Decode() {
       videoElement.src = URL.createObjectURL(videoFile);
 
       videoElement.onload = () => {
-        const binaryText = "Example decoded text from video"; // Placeholder
+        const binaryText = "Example decoded text from video";
         resolve(binaryText);
       };
 

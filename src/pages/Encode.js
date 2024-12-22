@@ -56,9 +56,8 @@ function Encode() {
         for (let i = 0; i < textToEncode.length; i++) {
           binaryText += textToEncode.charCodeAt(i).toString(2).padStart(8, "0");
         }
-        binaryText += "00000000"; // End of text marker
-
-        // Encode into audio data (this is a basic approach for demonstration)
+        binaryText += "00000000"; 
+        
         for (let i = 0; i < audioData.length; i++) {
           if (i < binaryText.length) {
             audioData[i] = (audioData[i] & 0xfe) | parseInt(binaryText[i], 2);

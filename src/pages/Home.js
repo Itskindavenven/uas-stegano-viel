@@ -13,6 +13,14 @@ function Home() {
     <div className="home">
       <h1 className="title">Steganography</h1>
       <p className="subtitle">Sembunyikan pesanmu dengan aman!</p>
+      <li>
+        Michelle Gravielle Benedicta Roring
+      </li>
+      <li>
+        Hibban Muhammad
+      </li>
+
+      <ul></ul>
 
       <div className="card-container">
         <Card title="Text to Audio" icon="audio" onAction={handleAction} />

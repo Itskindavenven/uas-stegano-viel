@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaMusic, FaImage, FaVideo } from 'react-icons/fa';
-import './Card.css'; // Import the styles for Card
+import './Card.css';
 
 function Card({ title, icon, onAction }) {
   return (
