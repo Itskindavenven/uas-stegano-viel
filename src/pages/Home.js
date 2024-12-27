@@ -12,16 +12,9 @@ function Home() {
   return (
     <div className="home">
       <h1 className="title">Steganography</h1>
-      <p className="subtitle">Sembunyikan pesanmu dengan aman!</p>
-      <li>
-        Michelle Gravielle Benedicta Roring
-      </li>
-      <li>
-        Hibban Muhammad
-      </li>
-
-      <ul></ul>
-
+      <p className="subtitle">Send your message securely by secretly hiding it!</p>
+      <h2>Michelle Gravielle Benedicta Roring (120510220060) & Hibban Muhammad (120510220052)</h2>
+      <br/>
       <div className="card-container">
         <Card title="Text to Audio" icon="audio" onAction={handleAction} />
         <Card title="Text to Image" icon="image" onAction={handleAction} />

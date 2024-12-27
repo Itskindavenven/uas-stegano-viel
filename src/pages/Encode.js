@@ -6,8 +6,23 @@ import "./Encode.css";
 function Encode() {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
+  const [fileType, setFileType] = useState(""); // State untuk menyimpan tipe file
   const [encodedData, setEncodedData] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
+
+  const handleFileSelect = (selectedFile) => {
+    setFile(selectedFile);
+
+    if (selectedFile.type.startsWith("image")) {
+      setFileType("Image");
+    } else if (selectedFile.type.startsWith("audio")) {
+      setFileType("Audio");
+    } else if (selectedFile.type.startsWith("video")) {
+      setFileType("Video");
+    } else {
+      setFileType("");
+    }
+  };
 
   const encodeTextToImage = async (imageFile, textToEncode) => {
     const canvas = document.createElement("canvas");
@@ -37,7 +52,7 @@ function Encode() {
         }
 
         ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL());
+        resolve(canvas.toDataURL("image/png"));
       };
 
       image.onerror = reject;
@@ -75,17 +90,37 @@ function Encode() {
 
   const encodeTextToVideo = (videoFile, textToEncode) => {
     return new Promise((resolve, reject) => {
-      const videoElement = document.createElement("video");
-      videoElement.src = URL.createObjectURL(videoFile);
-
-      videoElement.onload = () => {
-        // Skip actual video manipulation for now
-        const modifiedVideoUrl = URL.createObjectURL(videoFile); // Just returning the original video
-        resolve(modifiedVideoUrl);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const videoData = new Uint8Array(reader.result);
+        
+        // Encode the text and add a null terminator
+        const textBytes = new TextEncoder().encode(textToEncode + "\0"); // Adding null-terminator to indicate the end of the text
+  
+        // Combine the video data and the encoded text in a new Uint8Array
+        const combinedData = new Uint8Array(videoData.length + textBytes.length);
+        combinedData.set(videoData); // Copy the video data
+        combinedData.set(textBytes, videoData.length); // Append the text data after the video data
+  
+        // Create a Blob from the combined data
+        const encodedVideoBlob = new Blob([combinedData], { type: videoFile.type });
+        const encodedVideoUrl = URL.createObjectURL(encodedVideoBlob);
+        resolve(encodedVideoUrl);
       };
-
-      videoElement.onerror = reject;
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(videoFile);
     });
+  };
+  
+
+
+  const downloadFile = (dataUrl, fileName) => {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleEncode = async () => {
@@ -93,41 +128,49 @@ function Encode() {
       alert("Please upload a file and enter text!");
       return;
     }
-
+  
     setCurrentStep(1);
-
+  
     setTimeout(() => {
       setCurrentStep(2);
     }, 1000);
-
+  
     setTimeout(() => {
       setCurrentStep(3);
     }, 2000);
-
+  
     setTimeout(async () => {
       let encoded;
       const fileExtension = file.name.split(".").pop().toLowerCase();
-      if (fileExtension === "jpg" || fileExtension === "png") {
+      const fileName = `encoded_${file.name}`;
+  
+      if (["jpg", "jpeg", "png"].includes(fileExtension)) {
         encoded = await encodeTextToImage(file, text);
-      } else if (fileExtension === "mp3") {
+        downloadFile(encoded, fileName);
+      } else if (["mp3", "wav"].includes(fileExtension)) {
         encoded = await encodeTextToAudio(file, text);
-      } else if (fileExtension === "mp4") {
+        downloadFile(encoded, fileName);
+      } else if (["mp4", "mkv", "avi"].includes(fileExtension)) {
         encoded = await encodeTextToVideo(file, text);
+        downloadFile(encoded, fileName);
+      } else {
+        alert("Unsupported file type!");
       }
-
+  
       setEncodedData(encoded);
       setCurrentStep(4);
     }, 3000);
   };
-
-  return (
+    return (
     <div className="page p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Encode Text into Image, Audio, or Video</h1>
+      <h1 className="text-3xl font-bold text-center mb-6">
+        Encode {fileType ? `${fileType}` : "Text into File"}
+      </h1>
 
       <div className="upload-section grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="upload-card bg-white p-6 shadow-lg rounded-md">
           <h3 className="text-xl font-semibold mb-4">Upload File</h3>
-          <FileUpload onFileSelect={(file) => setFile(file)} />
+          <FileUpload onFileSelect={handleFileSelect} />
           
           {file && (
             <div className="file-preview mt-4">
@@ -167,6 +210,7 @@ function Encode() {
         </div>
       </div>
 
+      {/* Visualization Section */}
       <div className="visualization mt-6 grid grid-cols-4 gap-4">
         <div className={`step ${currentStep >= 1 ? "active" : ""} flex flex-col items-center`}>
           <FaPlay size={50} />
@@ -189,6 +233,7 @@ function Encode() {
         </div>
       </div>
 
+      {/* Encoded Data Section */}
       {encodedData && (
         <div className="mt-6">
           <h3 className="text-2xl font-semibold">Encoded Result:</h3>

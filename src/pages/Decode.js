@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaPlay, FaArrowDown, FaFileAlt, FaCheck } from "react-icons/fa";
 import FileUpload from "../components/FileUpload";
 import "./Decode.css";
@@ -7,6 +7,22 @@ function Decode() {
   const [file, setFile] = useState(null);
   const [decodedText, setDecodedText] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
+  const [fileType, setFileType] = useState(""); // State to store file type
+
+  useEffect(() => {
+    if (file) {
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+      if (["jpg", "png"].includes(fileExtension)) {
+        setFileType("Image");
+      } else if (["mp3"].includes(fileExtension)) {
+        setFileType("Audio");
+      } else if (["mp4"].includes(fileExtension)) {
+        setFileType("Video");
+      } else {
+        setFileType(""); // Default if the file type is unsupported
+      }
+    }
+  }, [file]);
 
   const decodeTextFromImage = async (imageFile) => {
     const canvas = document.createElement("canvas");
@@ -65,15 +81,22 @@ function Decode() {
 
   const decodeTextFromVideo = (videoFile) => {
     return new Promise((resolve, reject) => {
-      const videoElement = document.createElement("video");
-      videoElement.src = URL.createObjectURL(videoFile);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const videoData = new Uint8Array(reader.result);
+        
+        let textStartIndex = videoData.lastIndexOf(0); // Find the position of null-terminator
+        if (textStartIndex === -1) {
+          reject("No encoded text found in the video.");
+          return;
+        }
 
-      videoElement.onload = () => {
-        const binaryText = "Example decoded text from video";
-        resolve(binaryText);
+        const textBytes = videoData.slice(textStartIndex + 1); // Skip the null terminator
+        const text = new TextDecoder().decode(textBytes);
+        resolve(text);
       };
-
-      videoElement.onerror = reject;
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(videoFile);
     });
   };
 
@@ -104,14 +127,16 @@ function Decode() {
         decoded = await decodeTextFromVideo(file);
       }
 
-      setDecodedText(decoded);
+      setDecodedText(decoded || "No text decoded");
       setCurrentStep(4);
     }, 3000);
   };
 
   return (
     <div className="decode-page">
-      <h1 className="page-title">Decode Text from Image, Audio, or Video</h1>
+      <h1 className="page-title">
+        {fileType ? `Decode ${fileType}` : "Decode Text from File"}
+      </h1>
 
       <div className="main-container">
         <div className="card upload-card">
