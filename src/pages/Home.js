@@ -6,7 +6,7 @@ function Home() {
   const navigate = useNavigate();
 
   const handleAction = (type, action) => {
-    navigate(`/${action}/${type}`);  // Pass the action and type correctly
+    navigate(`/${action}/${type}`); 
   };
 
   return (
@@ -17,14 +17,12 @@ function Home() {
       <p className="subtitle">Send your message securely by secretly hiding it!</p>
       <br/>
       <br/>
-      <br/>
-      <br/>
-      <br/>
       <div className="card-container">
         <Card title="Text to Audio" icon="audio" onAction={handleAction} />
         <Card title="Text to Image" icon="image" onAction={handleAction} />
         <Card title="Text to Video" icon="video" onAction={handleAction} />
       </div>
+      <br/>
       <h2>Michelle Gravielle Benedicta Roring (120510220060) & Hibban Muhammad (120510220052)</h2>
     </div>
   );

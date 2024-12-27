@@ -7,7 +7,7 @@ function Decode() {
   const [file, setFile] = useState(null);
   const [decodedText, setDecodedText] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
-  const [fileType, setFileType] = useState(""); // State to store file type
+  const [fileType, setFileType] = useState(""); 
 
   useEffect(() => {
     if (file) {
@@ -19,7 +19,7 @@ function Decode() {
       } else if (["mp4"].includes(fileExtension)) {
         setFileType("Video");
       } else {
-        setFileType(""); // Default if the file type is unsupported
+        setFileType(""); 
       }
     }
   }, [file]);
@@ -28,33 +28,57 @@ function Decode() {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const image = new Image();
-
+  
     return new Promise((resolve, reject) => {
       image.onload = () => {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
-
+  
         const imageData = ctx.getImageData(0, 0, image.width, image.height);
         const data = imageData.data;
-
+  
         let binaryText = "";
         for (let i = 0; i < data.length; i++) {
-          binaryText += (data[i] & 1).toString();
+          binaryText += (data[i] & 1).toString(); 
         }
-
-        const chars = binaryText.match(/.{8}/g).map((byte) => {
+        const chars = binaryText.match(/.{8}/g)?.map((byte) => {
           return String.fromCharCode(parseInt(byte, 2));
         });
-
-        const text = chars.join("").split("\0")[0];
-        resolve(text);
+  
+        if (chars) {
+          const text = chars.join("").split("\0")[0];
+  
+          resolve(text);
+        } else {
+          reject("No readable text found in the image.");
+        }
       };
-
+  
       image.onerror = reject;
       image.src = URL.createObjectURL(imageFile);
     });
   };
+  
+  
+  const processImage = async (file) => {
+    setCurrentStep(1);
+  
+    setTimeout(() => {
+      setCurrentStep(2);
+    }, 1000);
+  
+    setTimeout(() => {
+      setCurrentStep(3); 
+    }, 2000);
+  
+    setTimeout(async () => {
+      const decoded = await decodeTextFromImage(file);
+      setDecodedText(decoded); 
+      setCurrentStep(4); 
+    }, 3000);
+  };
+  
 
   const decodeTextFromAudio = (audioFile) => {
     return new Promise((resolve, reject) => {
@@ -85,13 +109,13 @@ function Decode() {
       reader.onload = () => {
         const videoData = new Uint8Array(reader.result);
         
-        let textStartIndex = videoData.lastIndexOf(0); // Find the position of null-terminator
+        let textStartIndex = videoData.lastIndexOf(0); 
         if (textStartIndex === -1) {
           reject("No encoded text found in the video.");
           return;
         }
 
-        const textBytes = videoData.slice(textStartIndex + 1); // Skip the null terminator
+        const textBytes = videoData.slice(textStartIndex + 1); 
         const text = new TextDecoder().decode(textBytes);
         resolve(text);
       };
@@ -105,19 +129,25 @@ function Decode() {
       alert("Please upload a file to decode!");
       return;
     }
-
+  
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+    
+    if (fileExtension === "png") {
+      alert("PNG files are not supported for decoding. Please upload a different file.");
+      return;
+    }
+  
     setCurrentStep(1);
-
+  
     setTimeout(() => {
       setCurrentStep(2);
     }, 1000);
-
+  
     setTimeout(() => {
       setCurrentStep(3);
     }, 2000);
-
+  
     setTimeout(async () => {
-      const fileExtension = file.name.split(".").pop().toLowerCase();
       let decoded;
       if (fileExtension === "jpg" || fileExtension === "png") {
         decoded = await decodeTextFromImage(file);
@@ -126,11 +156,12 @@ function Decode() {
       } else if (fileExtension === "mp4") {
         decoded = await decodeTextFromVideo(file);
       }
-
+  
       setDecodedText(decoded || "No text decoded");
       setCurrentStep(4);
     }, 3000);
   };
+  
 
   return (
     <div className="decode-page">

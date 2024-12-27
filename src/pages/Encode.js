@@ -6,9 +6,10 @@ import "./Encode.css";
 function Encode() {
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
-  const [fileType, setFileType] = useState(""); // State untuk menyimpan tipe file
+  const [fileType, setFileType] = useState("");
   const [encodedData, setEncodedData] = useState(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [encodedImage, setEncodedImage] = useState(null);
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
@@ -28,21 +29,21 @@ function Encode() {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const image = new Image();
-
+  
     return new Promise((resolve, reject) => {
       image.onload = () => {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
-
+  
         const imageData = ctx.getImageData(0, 0, image.width, image.height);
         const data = imageData.data;
-
+  
         const binaryText = textToEncode
           .split("")
           .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
-          .join("") + "00000000";
-
+          .join("") + "00000000"; 
+  
         let textIndex = 0;
         for (let i = 0; i < data.length; i++) {
           if (textIndex < binaryText.length) {
@@ -50,11 +51,11 @@ function Encode() {
             textIndex++;
           }
         }
-
+  
         ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL("image/png"));
+        resolve(canvas.toDataURL(imageFile.type || "image/png"));
       };
-
+  
       image.onerror = reject;
       image.src = URL.createObjectURL(imageFile);
     });
@@ -67,7 +68,6 @@ function Encode() {
         const audioData = new Uint8Array(reader.result);
         let binaryText = "";
 
-        // Convert the text to binary
         for (let i = 0; i < textToEncode.length; i++) {
           binaryText += textToEncode.charCodeAt(i).toString(2).padStart(8, "0");
         }
@@ -94,15 +94,12 @@ function Encode() {
       reader.onload = () => {
         const videoData = new Uint8Array(reader.result);
         
-        // Encode the text and add a null terminator
-        const textBytes = new TextEncoder().encode(textToEncode + "\0"); // Adding null-terminator to indicate the end of the text
+        const textBytes = new TextEncoder().encode(textToEncode + "\0"); 
   
-        // Combine the video data and the encoded text in a new Uint8Array
         const combinedData = new Uint8Array(videoData.length + textBytes.length);
-        combinedData.set(videoData); // Copy the video data
-        combinedData.set(textBytes, videoData.length); // Append the text data after the video data
+        combinedData.set(videoData); 
+        combinedData.set(textBytes, videoData.length); 
   
-        // Create a Blob from the combined data
         const encodedVideoBlob = new Blob([combinedData], { type: videoFile.type });
         const encodedVideoUrl = URL.createObjectURL(encodedVideoBlob);
         resolve(encodedVideoUrl);
@@ -111,8 +108,6 @@ function Encode() {
       reader.readAsArrayBuffer(videoFile);
     });
   };
-  
-
 
   const downloadFile = (dataUrl, fileName) => {
     const link = document.createElement("a");
@@ -128,22 +123,28 @@ function Encode() {
       alert("Please upload a file and enter text!");
       return;
     }
-  
+
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+
+    if (fileExtension === "png") {
+      alert("PNG format is not supported for encoding.");
+      return;
+    }
+
     setCurrentStep(1);
-  
+
     setTimeout(() => {
       setCurrentStep(2);
     }, 1000);
-  
+
     setTimeout(() => {
       setCurrentStep(3);
     }, 2000);
-  
+
     setTimeout(async () => {
       let encoded;
-      const fileExtension = file.name.split(".").pop().toLowerCase();
       const fileName = `encoded_${file.name}`;
-  
+
       if (["jpg", "jpeg", "png"].includes(fileExtension)) {
         encoded = await encodeTextToImage(file, text);
         downloadFile(encoded, fileName);
@@ -156,12 +157,13 @@ function Encode() {
       } else {
         alert("Unsupported file type!");
       }
-  
+
       setEncodedData(encoded);
       setCurrentStep(4);
     }, 3000);
   };
-    return (
+
+  return (
     <div className="page p-6">
       <h1 className="text-3xl font-bold text-center mb-6">
         Encode {fileType ? `${fileType}` : "Text into File"}
@@ -169,7 +171,6 @@ function Encode() {
 
       <div className="upload-section grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="upload-card bg-white p-6 shadow-lg rounded-md">
-          <h3 className="text-xl font-semibold mb-4">Upload File</h3>
           <FileUpload onFileSelect={handleFileSelect} />
           
           {file && (
