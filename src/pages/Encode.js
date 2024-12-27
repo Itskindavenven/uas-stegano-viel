@@ -29,21 +29,21 @@ function Encode() {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const image = new Image();
-  
+
     return new Promise((resolve, reject) => {
       image.onload = () => {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
-  
+
         const imageData = ctx.getImageData(0, 0, image.width, image.height);
         const data = imageData.data;
-  
+
         const binaryText = textToEncode
           .split("")
           .map((char) => char.charCodeAt(0).toString(2).padStart(8, "0"))
-          .join("") + "00000000"; 
-  
+          .join("") + "00000000";
+
         let textIndex = 0;
         for (let i = 0; i < data.length; i++) {
           if (textIndex < binaryText.length) {
@@ -51,15 +51,17 @@ function Encode() {
             textIndex++;
           }
         }
-  
+
         ctx.putImageData(imageData, 0, 0);
-        resolve(canvas.toDataURL(imageFile.type || "image/png"));
+        resolve(canvas.toDataURL());
       };
-  
+
       image.onerror = reject;
       image.src = URL.createObjectURL(imageFile);
     });
   };
+  
+  
 
   const encodeTextToAudio = (audioFile, textToEncode) => {
     return new Promise((resolve, reject) => {
@@ -126,10 +128,10 @@ function Encode() {
 
     const fileExtension = file.name.split(".").pop().toLowerCase();
 
-    if (fileExtension === "png") {
-      alert("PNG format is not supported for encoding.");
-      return;
-    }
+    // if (fileExtension === "png") {
+    //   alert("PNG format is not supported for encoding.");
+    //   return;
+    // }
 
     setCurrentStep(1);
 

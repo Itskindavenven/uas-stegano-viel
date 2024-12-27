@@ -28,33 +28,29 @@ function Decode() {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     const image = new Image();
-  
+
     return new Promise((resolve, reject) => {
       image.onload = () => {
         canvas.width = image.width;
         canvas.height = image.height;
         ctx.drawImage(image, 0, 0);
-  
+
         const imageData = ctx.getImageData(0, 0, image.width, image.height);
         const data = imageData.data;
-  
+
         let binaryText = "";
         for (let i = 0; i < data.length; i++) {
-          binaryText += (data[i] & 1).toString(); 
+          binaryText += (data[i] & 1).toString();
         }
-        const chars = binaryText.match(/.{8}/g)?.map((byte) => {
+
+        const chars = binaryText.match(/.{8}/g).map((byte) => {
           return String.fromCharCode(parseInt(byte, 2));
         });
-  
-        if (chars) {
-          const text = chars.join("").split("\0")[0];
-  
-          resolve(text);
-        } else {
-          reject("No readable text found in the image.");
-        }
+
+        const text = chars.join("").split("\0")[0];
+        resolve(text);
       };
-  
+
       image.onerror = reject;
       image.src = URL.createObjectURL(imageFile);
     });
@@ -132,10 +128,10 @@ function Decode() {
   
     const fileExtension = file.name.split(".").pop().toLowerCase();
     
-    if (fileExtension === "png") {
-      alert("PNG files are not supported for decoding. Please upload a different file.");
-      return;
-    }
+    // if (fileExtension === "png") {
+    //   alert("PNG files are not supported for decoding. Please upload a different file.");
+    //   return;
+    // }
   
     setCurrentStep(1);
   
